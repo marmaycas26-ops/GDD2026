@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GDD 2026 · Fitflow</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Montserrat",Helvetica,Arial,sans-serif;color:#1A1A1A;-webkit-font-smoothing:antialiased;}
+input::placeholder,textarea::placeholder{color:#B8B8B8;}
+select{appearance:none;-webkit-appearance:none;}
+
+.screen{display:none;}
+.screen.active{display:block;}
+#sl.active,#sc.active{display:flex;flex-direction:column;min-height:100vh;}
+
+/* HEADER */
+.hdr{background:#1A1A1A;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #C0001A;}
+.hdr-logo{display:flex;align-items:center;gap:8px;}
+.hdr-bar{width:5px;height:26px;background:#C0001A;flex-shrink:0;}
+.hdr-texts{display:flex;flex-direction:column;}
+.hdr-name{font-size:20px;font-weight:700;color:#fff;letter-spacing:.1em;line-height:1;}
+.hdr-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:3px;}
+.hdr-right{display:flex;align-items:center;gap:14px;}
+.hdr-user{font-size:11px;color:rgba(255,255,255,.45);}
+.btn-exit{font-family:"Montserrat",sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);background:transparent;border:1px solid rgba(255,255,255,.18);padding:7px 12px;cursor:pointer;}
+.btn-exit:hover{color:#fff;border-color:#C0001A;}
+
+/* LOGIN PAGE */
+#sli,#sci{background:#F4F4F4;min-height:100vh;}
+.login-wrap{display:flex;align-items:center;justify-content:center;padding:56px 20px;min-height:calc(100vh - 62px);}
+.card{background:#fff;border:1px solid #E0E0E0;border-top:3px solid #C0001A;padding:44px 40px;width:420px;max-width:100%;}
+.card-eye{font-size:9px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#C0001A;margin-bottom:12px;}
+.card-title{font-size:30px;font-weight:700;line-height:1.2;color:#1A1A1A;margin-bottom:10px;}
+.card-desc{font-size:13px;line-height:1.6;color:#6E6E6E;margin-bottom:28px;}
+.card-desc a{color:#C0001A;text-decoration:none;}
+.lbl{display:block;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#4A4A4A;margin-bottom:7px;}
+.inp{width:100%;font-family:"Montserrat",sans-serif;font-size:14px;color:#1A1A1A;background:#FAFAFA;border:1px solid #D8D8D8;padding:12px 14px;outline:none;transition:border-color .14s;margin-bottom:18px;}
+.inp:focus{border-color:#C0001A;background:#fff;}
+.inp.ferr{border-color:#C0001A;background:#FDECEA;}
+textarea.inp{resize:vertical;min-height:76px;line-height:1.55;}
+.sel-w{position:relative;margin-bottom:18px;}
+.sel-w select{width:100%;font-family:"Montserrat",sans-serif;font-size:14px;color:#1A1A1A;background:#FAFAFA;border:1px solid #D8D8D8;padding:12px 36px 12px 14px;outline:none;cursor:pointer;border-radius:0;}
+.sel-w select:focus{border-color:#C0001A;background:#fff;}
+.sel-w select.ferr{border-color:#C0001A;background:#FDECEA;}
+.arr{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:10px;color:#C0001A;}
+.btn-main{width:100%;font-family:"Montserrat",sans-serif;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#fff;background:#C0001A;border:none;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .14s;margin-top:2px;}
+.btn-main:hover{background:#1A1A1A;}
+.card-foot{margin-top:26px;padding-top:22px;border-top:1px solid #EFEFEF;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.card-foot-l{font-size:11px;color:#999;line-height:1.4;}
+.card-foot-r{font-size:11px;font-weight:700;color:#C0001A;cursor:pointer;white-space:nowrap;}
+.card-foot-r:hover{color:#1A1A1A;}
+.msg-err{background:#FDECEA;border:1px solid #C0001A;padding:9px 12px;font-size:12px;color:#C0001A;margin-bottom:14px;display:none;}
+.msg-inf{background:#EFF8F0;border:1px solid #8FC79A;padding:9px 12px;font-size:12px;color:#2E7D32;margin-bottom:14px;display:none;}
+.campos-extra{display:block;}
+.ferr-msg{font-size:11px;color:#C0001A;margin-top:-12px;margin-bottom:10px;display:none;}
+
+/* FORMULARIO */
+.fmain{flex:1;display:flex;justify-content:center;background:#F4F4F4;padding:44px 20px 64px;}
+.fcontainer{width:100%;max-width:880px;display:flex;flex-direction:column;gap:18px;}
+.peyebrow{font-size:9px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:#C0001A;}
+.ptitle{font-size:25px;font-weight:700;line-height:1.25;margin-top:5px;}
+
+/* SECCIONES */
+.sec{background:#fff;border:1px solid #E4E4E4;}
+.sec-l{border-left:3px solid #C0001A;}
+.sin{padding:28px 32px;}
+.shdr{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;}
+.snum{font-size:10px;font-weight:700;letter-spacing:.2em;color:#C0001A;}
+.stit{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin:0;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px;}
+.gf{grid-column:1/-1;}
+.fld{display:flex;flex-direction:column;gap:5px;}
+.fld>label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4A4A4A;}
+.ha{font-size:12px;color:#A6A6A6;line-height:1.45;}
+.hb{font-size:12px;color:#6E6E6E;line-height:1.45;}
+.finp{width:100%;font-family:"Montserrat",sans-serif;font-size:14px;color:#1A1A1A;background:#FAFAFA;border:1px solid #D8D8D8;padding:11px 13px;outline:none;transition:border-color .14s;}
+.finp:focus{border-color:#C0001A;background:#fff;}
+.finp[readonly]{background:#F0F0F0;color:#6E6E6E;cursor:default;}
+.finp.ferr{border-color:#C0001A;background:#FDECEA;}
+textarea.finp{resize:vertical;min-height:76px;line-height:1.55;}
+.fsel{position:relative;}
+.fsel select{width:100%;font-family:"Montserrat",sans-serif;font-size:14px;color:#1A1A1A;background:#FAFAFA;border:1px solid #D8D8D8;padding:11px 34px 11px 13px;outline:none;cursor:pointer;border-radius:0;}
+.fsel select:focus{border-color:#C0001A;background:#fff;}
+.fsel select.ferr{border-color:#C0001A;background:#FDECEA;}
+.fferr{font-size:11px;color:#C0001A;margin-top:3px;display:none;}
+
+/* OBJETIVO */
+.ohdr{background:#C0001A;padding:13px 32px;}
+.ohdr h2{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#fff;margin:0;}
+.fbox{padding:12px 16px;background:#FAFAFA;border-left:2px solid #1A1A1A;display:flex;flex-direction:column;gap:3px;}
+.fbox .ft{font-size:12px;font-weight:600;color:#1A1A1A;}
+.fbox .fx{font-size:12px;color:#9A9A9A;line-height:1.45;}
+.sepline{height:1px;background:#EFEFEF;}
+.bbtn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#FAFAFA;border:1px solid #C0001A;padding:13px 16px;font-family:"Montserrat",sans-serif;font-size:13px;font-weight:600;color:#1A1A1A;cursor:pointer;transition:background .14s;}
+.bbtn:hover{background:#FDECEA;}
+.bbtn .ba{color:#C0001A;font-size:14px;}
+.obsbox{background:#FDECEA;border:1px solid #C0001A;padding:18px 20px;display:flex;flex-direction:column;gap:7px;}
+.obslbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C0001A;}
+.obstxt{font-size:13px;line-height:1.55;color:#9A5A5F;font-style:italic;}
+.obstxt.has{color:#1A1A1A;font-style:normal;}
+
+/* PESO BANNER */
+.pbanner{display:flex;align-items:center;gap:10px;padding:14px 18px;border:1px solid #E0BE6E;background:#FFF8E8;}
+.pico{font-size:16px;line-height:1;}
+.pmsg{font-size:13px;font-weight:600;color:#1A1A1A;}
+
+/* ACCIONES */
+.acts{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.bdl{font-family:"Montserrat",sans-serif;font-size:12px;font-weight:600;color:#6E6E6E;display:flex;align-items:center;gap:5px;background:transparent;border:none;cursor:pointer;}
+.bdl:hover{color:#1A1A1A;}
+.acts-r{display:flex;gap:10px;}
+.bact{font-family:"Montserrat",sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C0001A;background:#fff;border:1px solid #C0001A;padding:13px 22px;cursor:pointer;transition:all .14s;}
+.bact:hover{background:#C0001A;color:#fff;}
+.bsave{font-family:"Montserrat",sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:#C0001A;border:none;padding:13px 26px;cursor:pointer;display:flex;align-items:center;gap:9px;transition:background .14s;}
+.bsave:hover{background:#1A1A1A;}
+
+/* FOOTER */
+.ftr{background:#1A1A1A;color:#fff;padding:18px 40px;display:flex;align-items:center;justify-content:space-between;}
+.ftxt{font-size:11px;letter-spacing:.07em;opacity:.55;}
+.fbar{width:18px;height:2px;background:#C0001A;}
+.fver{font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.35;margin-left:6px;}
+
+/* BANCO MODAL */
+.bov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;}
+.bov.open{display:flex;}
+.bmod{background:#fff;width:920px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;border-top:4px solid #C0001A;}
+.bmhdr{background:#1A1A1A;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+.bmhdr h3{font-size:12px;font-weight:700;color:#fff;letter-spacing:.1em;text-transform:uppercase;}
+.bclose{background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer;opacity:.55;line-height:1;}
+.bclose:hover{opacity:1;}
+.bsbar{padding:12px 24px;border-bottom:1px solid #E4E4E4;display:flex;gap:10px;flex-wrap:wrap;}
+.bsbar input{flex:1;min-width:160px;font-family:"Montserrat",sans-serif;font-size:13px;border:1px solid #D8D8D8;padding:8px 12px;outline:none;}
+.bsbar input:focus{border-color:#C0001A;}
+.bfw{position:relative;}
+.bfw select{font-family:"Montserrat",sans-serif;font-size:13px;border:1px solid #D8D8D8;padding:8px 28px 8px 12px;outline:none;cursor:pointer;border-radius:0;min-width:230px;}
+.bfw select:focus{border-color:#C0001A;}
+.bfw .arr{right:10px;}
+.btw{overflow-y:auto;flex:1;}
+.btbl{width:100%;border-collapse:collapse;}
+.btbl th{background:#1A1A1A;color:#fff;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:10px 13px;text-align:left;position:sticky;top:0;}
+.btbl td{padding:9px 13px;font-size:12px;color:#1A1A1A;border-bottom:1px solid #F0F0F0;vertical-align:top;line-height:1.4;}
+.btbl tr:hover td{background:#FEF5F5;cursor:pointer;}
+.gc{font-size:11px;color:#6E6E6E;font-weight:600;}
+.fc{color:#6E6E6E;font-style:italic;font-size:11px;}
+.ubtn{padding:4px 10px;background:#C0001A;color:#fff;font-family:"Montserrat",sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:none;cursor:pointer;white-space:nowrap;}
+.ubtn:hover{background:#1A1A1A;}
+.bempty{padding:40px;text-align:center;color:#999;font-size:13px;}
+
+/* CEO */
+.cmain{flex:1;padding:36px 40px;background:#F4F4F4;}
+.lcard{background:#fff;border:1px solid #E4E4E4;border-left:3px solid #C0001A;margin-bottom:12px;}
+.lchdr{background:#1A1A1A;padding:11px 20px;display:flex;justify-content:space-between;align-items:center;}
+.lchdr h3{font-size:13px;font-weight:700;color:#fff;}
+.lctag{font-size:10px;color:#888;}
+.lcbody{padding:12px 20px;}
+.omini{background:#F7F7F7;border-left:2px solid #E0E0E0;padding:9px 13px;margin-bottom:7px;}
+.omn{font-size:9px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.1em;}
+.omt{font-size:13px;color:#1A1A1A;margin-top:2px;}
+.omm{font-size:11px;color:#6E6E6E;margin-top:2px;}
+.cota{width:100%;font-family:"Montserrat",sans-serif;font-size:13px;color:#1A1A1A;background:#FAFAFA;border:1px solid #D8D8D8;padding:9px 11px;outline:none;resize:vertical;min-height:50px;margin-top:7px;}
+.cota:focus{border-color:#C0001A;background:#fff;}
+.cobtn{margin-top:5px;font-family:"Montserrat",sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:#C0001A;border:none;padding:7px 14px;cursor:pointer;}
+.cobtn:hover{background:#1A1A1A;}
+.bexp{font-family:"Montserrat",sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#C0001A;background:#fff;border:1px solid #C0001A;padding:8px 16px;cursor:pointer;}
+.bexp:hover{background:#C0001A;color:#fff;}
+.est{text-align:center;padding:60px;color:#999;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:#1A1A1A;color:#fff;padding:11px 18px;font-size:13px;font-weight:500;box-shadow:0 6px 20px rgba(0,0,0,.2);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;border-left:4px solid #C0001A;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-left-color:#4CAF50;}
+.toast.warn{border-left-color:#E8A838;}
+
+@media(max-width:600px){
+  .hdr,.ftr,.cmain{padding-left:16px;padding-right:16px;}
+  .card{padding:28px 20px;}
+  .fmain{padding:24px 12px 48px;}
+  .sin{padding:20px 16px;}
+  .g2{grid-template-columns:1fr;}.gf{grid-column:1;}
+  .bsbar{flex-direction:column;}
+}
+@media print{
+  .hdr,.bov,.toast,.acts,.pbanner,.fbox,.bbtn,.cota,.cobtn{display:none!important;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN LÍDER -->
+<div id="sli" class="screen active">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-bar"></div>
+      <div class="hdr-texts">
+        <div class="hdr-name">FITFLOW</div>
+        <div class="hdr-sub">Gestión del Desempeño 2026</div>
+      </div>
+    </div>
+  </header>
+  <div class="login-wrap">
+    <div class="card">
+      <div class="card-eye">Gestión del Desempeño 2026</div>
+      <h1 class="card-title">Bienvenido a tu<br>plataforma de<br>objetivos 2026</h1>
+      <p class="card-desc">Ingresa tu número de documento para acceder a tu <a href="#">formato de objetivos</a>.</p>
+      <div id="lerr" class="msg-err"></div>
+      <div id="linf" class="msg-inf"></div>
+      <label class="lbl">N° de Documento (DNI / RUT) *</label>
+      <input class="inp" id="ldni" type="text" placeholder="Ej. 12.345.678-9" oninput="chkDni()">
+      <div id="cext" class="campos-extra" style="display:none;">
+        <label class="lbl">Apellidos y Nombres</label>
+        <input class="inp" id="lnom" type="text" placeholder="Ej. Rojas Medina, Ana María">
+        <label class="lbl">Gerencia / Dirección *</label>
+        <div class="sel-w">
+          <select id="lger">
+            <option value="">Selecciona una opción</option>
+            <option>Dirección General</option>
+            <option>Dirección Comercial</option>
+            <option>Dirección de Administración y Finanzas</option>
+            <option>Gerencia Comercial</option>
+            <option>Gerencia de Administración y Finanzas</option>
+            <option>Gerencia de Marketing</option>
+            <option>Gerencia de Supply Chain Management</option>
+            <option>Gerencia de Planeamiento y Control de Gestión</option>
+            <option>Gerencia de RRHH</option>
+            <option>Gerencia de Unidad de Negocios de Proyectos y Servicios</option>
+          </select>
+          <span class="arr">▼</span>
+        </div>
+        <label class="lbl">Cargo</label>
+        <input class="inp" id="lcar" type="text" placeholder="Ej. Gerente Comercial">
+      </div>
+      <button class="btn-main" onclick="loginL()">INGRESAR <span style="font-size:15px;line-height:1;">→</span></button>
+      <div class="card-foot">
+        <span class="card-foot-l">Uso interno · Datos confidenciales</span>
+        <span class="card-foot-r" onclick="showCeo()">Acceso Dirección General y RRHH →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN CEO -->
+<div id="sci" class="screen">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-bar"></div>
+      <div class="hdr-texts">
+        <div class="hdr-name">FITFLOW</div>
+        <div class="hdr-sub">Gestión del Desempeño 2026</div>
+      </div>
+    </div>
+  </header>
+  <div class="login-wrap">
+    <div class="card">
+      <div class="card-eye">Acceso restringido</div>
+      <h1 class="card-title">Dirección General<br>y RRHH</h1>
+      <p class="card-desc">Panel de seguimiento consolidado de objetivos GDD 2026.</p>
+      <div id="cerr" class="msg-err">Clave incorrecta. Contacta a RRHH.</div>
+      <label class="lbl">Clave de acceso</label>
+      <input class="inp" id="lclave" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginC()">
+      <button class="btn-main" onclick="loginC()">ACCEDER <span style="font-size:15px;line-height:1;">→</span></button>
+      <div class="card-foot">
+        <span class="card-foot-l">Uso interno · Datos confidenciales</span>
+        <span class="card-foot-r" onclick="showLider()">← Volver</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORMULARIO LÍDER -->
+<div id="sl" class="screen">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-bar"></div>
+      <div class="hdr-texts">
+        <div class="hdr-name">FITFLOW</div>
+        <div class="hdr-sub">Gestión del Desempeño 2026</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span class="hdr-user" id="hnom"></span>
+      <button class="btn-exit" onclick="logout()">Salir</button>
+    </div>
+  </header>
+  <main class="fmain">
+    <div class="fcontainer">
+      <div>
+        <div class="peyebrow">Gestión del Desempeño 2026</div>
+        <h1 class="ptitle">Formato de objetivos anuales</h1>
+      </div>
+      <!-- 01 INSTRUCCIONES -->
+      <div class="sec sec-l">
+        <div class="sin">
+          <div class="shdr"><span class="snum">01</span><h2 class="stit">Instrucciones</h2></div>
+          <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.6;color:#4A4A4A;">
+            <li>01. Antes de completar este formulario, revisa la <strong style="color:#1A1A1A;">Guía para elaborar objetivos 2026</strong> disponible en este mismo espacio.</li>
+            <li>02. Registra tus objetivos de gestión, cada uno con su indicador, meta/valor esperado y plazo de cumplimiento.</li>
+            <li>03. Puedes guardar y actualizar tus cambios las veces que necesites, incluso durante el taller.</li>
+            <li>04. Revisa las observaciones que el CEO o RRHH podrán añadir a tu formato.</li>
+            <li>05. La suma total de pesos de los 3 objetivos debe ser igual a 100%.</li>
+          </ul>
+          <div style="margin-top:18px;padding-top:16px;border-top:1px solid #EFEFEF;display:flex;flex-wrap:wrap;gap:14px;align-items:center;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="font-size:16px;">📄</span>
+              <a href="#" onclick="abrirGuia();return false;" style="font-size:12px;font-weight:700;color:#C0001A;letter-spacing:.02em;">Ver Guía para elaborar objetivos 2026 →</a>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="font-size:16px;">📋</span>
+              <a href="formato_pretrabajo_gdd2026.docx" style="font-size:12px;font-weight:700;color:#2E7D32;letter-spacing:.02em;">Descargar Formato de Objetivos y Metas →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 02 DATOS GENERALES -->
+      <div class="sec">
+        <div class="sin">
+          <div class="shdr"><span class="snum">02</span><h2 class="stit">Datos generales</h2></div>
+          <div class="g2">
+            <div class="fld gf"><label>N° de Documento (DNI / RUT)</label><input id="fdni" class="finp" type="text" readonly style="background:#F0F0F0;color:#6E6E6E;"></div>
+            <div class="fld gf"><label>Apellidos y Nombres</label><input id="fnom" class="finp" type="text" placeholder="Puedes editar tu nombre si es necesario"></div>
+            <div class="fld"><label>Gerencia / Dirección</label><div class="fsel"><select id="fger">
+      <option>Dirección General</option><option>Dirección Comercial</option>
+      <option>Dirección de Administración y Finanzas</option><option>Gerencia Comercial</option>
+      <option>Gerencia de Administración y Finanzas</option><option>Gerencia de Marketing</option>
+      <option>Gerencia de Supply Chain Management</option>
+      <option>Gerencia de Planeamiento y Control de Gestión</option>
+      <option>Gerencia de RRHH</option>
+      <option>Gerencia de Unidad de Negocios de Proyectos y Servicios</option>
+    </select><span class="arr">▼</span></div></div>
+            <div class="fld"><label>Cargo</label><input id="fcar" class="finp" type="text" placeholder="Puedes editar tu cargo si es necesario"></div>
+          </div>
+        </div>
+      </div>
+      <!-- OBJETIVOS -->
+      <div id="oc"></div>
+      <!-- PESO BANNER -->
+      <div class="pbanner" id="pb"><span class="pico" id="pi">⚠️</span><span class="pmsg" id="pm">Pesos acumulados: 0% — faltan 100% para completar</span></div>
+      <!-- ACCIONES -->
+      <div class="acts">
+        <button class="bdl" onclick="imprimir()">⬇ Imprimir formato</button>
+        <div class="acts-r">
+          <button class="bsave" onclick="guardar()"><span>Guardar y actualizar</span><span style="font-size:14px;">→</span></button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="ftr">
+    <span class="ftxt">Fitflow · Gestión del Desempeño 2026 · Confidencial</span>
+    <div style="display:flex;align-items:center;"><div class="fbar"></div><span class="fver">v 2.0</span></div>
+  </footer>
+</div>
+
+<!-- PANEL CEO -->
+<div id="sc" class="screen">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-bar"></div>
+      <div class="hdr-texts">
+        <div class="hdr-name">FITFLOW</div>
+        <div class="hdr-sub">Panel de Seguimiento · GDD 2026</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <button class="bexp" onclick="exportCSV()">⬇ Exportar Excel</button>
+      <button class="btn-exit" onclick="logout()">Salir</button>
+    </div>
+  </header>
+  <div class="cmain">
+    <div style="margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-size:21px;font-weight:700;margin-bottom:5px;">Objetivos del equipo directivo</h1>
+        <p id="cstats" style="font-size:13px;color:#6E6E6E;"></p>
+      </div>
+    </div>
+    <div id="cg"></div>
+  </div>
+</div>
+
+<!-- BANCO MODAL -->
+<div class="bov" id="bov" onclick="if(event.target===this)closeBanco()">
+  <div class="bmod">
+    <div class="bmhdr">
+      <h3>Banco de Objetivos e Indicadores — GDD 2026</h3>
+      <button class="bclose" onclick="closeBanco()">✕</button>
+    </div>
+    <div class="bsbar">
+      <input type="text" id="bs" placeholder="Buscar por objetivo o indicador..." oninput="filtrar()">
+      <div class="bfw">
+        <select id="bf" onchange="filtrar()">
+          <option value="">Todas las gerencias</option>
+          <option>Dirección General</option>
+          <option>Dirección Comercial</option>
+          <option>Dirección de Administración y Finanzas</option>
+          <option>Gerencia Comercial</option>
+          <option>Gerencia de Administración y Finanzas</option>
+          <option>Gerencia de Marketing</option>
+          <option>Gerencia de Supply Chain Management</option>
+          <option>Gerencia de Planeamiento y Control de Gestión</option>
+          <option>Gerencia de RRHH</option>
+          <option>Gerencia de Unidad de Negocios de Proyectos y Servicios</option>
+        </select>
+        <span class="arr">▼</span>
+      </div>
+    </div>
+    <div class="btw">
+      <table class="btbl">
+        <thead><tr>
+          <th style="width:160px;">Gerencia</th>
+          <th>Objetivo</th><th>Indicador</th>
+          <th style="width:160px;">Fórmula</th>
+          <th style="width:85px;">Sentido</th>
+          
+        </tr></thead>
+        <tbody id="bt"></tbody>
+      </table>
+      <div class="bempty" id="be" style="display:none;">No se encontraron resultados.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL GUÍA -->
+<div id="guia-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center;" onclick="if(event.target===this)cerrarGuia()">
+  <div style="background:#fff;width:760px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;border-top:4px solid #C0001A;">
+    <div style="background:#1A1A1A;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <h3 style="font-size:12px;font-weight:700;color:#fff;letter-spacing:.1em;text-transform:uppercase;">📄 Guía para elaborar Objetivos, Indicadores y Metas — GDD 2026</h3>
+      <button onclick="cerrarGuia()" style="background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer;opacity:.6;line-height:1;">✕</button>
+    </div>
+    <div style="padding:28px 32px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:20px;">
+      <!-- Sección 01 -->
+      <div style="border-left:3px solid #C0001A;padding-left:16px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#C0001A;margin-bottom:6px;">01 · EL HITO</div>
+        <p style="font-size:13px;line-height:1.7;color:#37474F;">Este año, por primera vez, el equipo directivo de Fitflow definirá sus objetivos de gestión de forma estructurada, medible y alineada con la estrategia. Es el inicio de una cultura de alto desempeño.</p>
+        <div style="margin-top:10px;padding:12px 16px;background:#FDECEA;border:1px solid #C0001A;">
+          <strong style="font-size:12px;color:#C0001A;">Tu reto:</strong>
+          <p style="font-size:13px;color:#37474F;margin-top:4px;">Formular 3 objetivos de gestión con indicador, meta cuantificable y evidencia — alineados con las prioridades estratégicas de Fitflow 2026.</p>
+        </div>
+      </div>
+      <!-- Sección 02 -->
+      <div style="border-left:3px solid #1A1A1A;padding-left:16px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#1A1A1A;margin-bottom:8px;">02 · DEFINICIONES CLAVE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div style="padding:14px;background:#FAFAFA;border:1px solid #E4E4E4;border-top:2px solid #C0001A;">
+            <div style="font-size:11px;font-weight:700;color:#C0001A;margin-bottom:6px;">① OBJETIVO</div>
+            <div style="font-size:11px;color:#546E7A;margin-bottom:8px;font-style:italic;">Declaración cualitativa de lo que se quiere lograr</div>
+            <div style="font-size:11px;font-weight:600;color:#1A1A1A;">Fórmula:</div>
+            <div style="font-size:11px;color:#37474F;">Verbo + Qué + Para qué</div>
+            <div style="margin-top:8px;font-size:11px;color:#2E7D32;">✅ "Fortalecer la eficiencia operativa para mejorar la rentabilidad."</div>
+          </div>
+          <div style="padding:14px;background:#FAFAFA;border:1px solid #E4E4E4;border-top:2px solid #E8A838;">
+            <div style="font-size:11px;font-weight:700;color:#E8A838;margin-bottom:6px;">② META / VALOR ESPERADO</div>
+            <div style="font-size:11px;color:#546E7A;margin-bottom:8px;font-style:italic;">Valor cuantificable al cierre del año</div>
+            <div style="font-size:11px;color:#37474F;"><strong>Incluye:</strong> Valor · Sentido · Peso · Evidencia · Plazo</div>
+            <div style="margin-top:6px;font-size:11px;color:#C0001A;font-weight:600;">⚠ Los 3 pesos deben sumar 100%</div>
+          </div>
+          <div style="padding:14px;background:#FAFAFA;border:1px solid #E4E4E4;border-top:2px solid #6D8595;">
+            <div style="font-size:11px;font-weight:700;color:#6D8595;margin-bottom:6px;">③ INDICADOR</div>
+            <div style="font-size:11px;color:#546E7A;margin-bottom:8px;font-style:italic;">Métrica que mide el avance</div>
+            <div style="font-size:11px;font-weight:600;color:#1A1A1A;">Estructura:</div>
+            <div style="font-size:11px;color:#37474F;">Unidad + Objeto + Atributo</div>
+            <div style="margin-top:8px;font-size:11px;color:#2E7D32;">✅ "% de contratos adjudicados / total licitaciones"</div>
+          </div>
+        </div>
+      </div>
+      <!-- Sección 03 -->
+      <div style="border-left:3px solid #2E7D32;padding-left:16px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#2E7D32;margin-bottom:8px;">03 · METODOLOGÍA SMART</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;">
+          ${["S·Específico·Verbo de acción + qué + para qué","M·Medible·Indicador cuantificable + valor de meta","A·Alcanzable·Retador pero realista","R·Relevante·Conecta con prioridades Fitflow 2026","T·Temporal·Fecha de cumplimiento definida"].map(x=>{const[l,n,d]=x.split("·");return`<div style="text-align:center;"><div style="background:#C0001A;color:#fff;font-size:18px;font-weight:700;padding:10px;">${l}</div><div style="background:#FEF5F5;border:1px solid #F0C4C4;padding:8px;"><div style="font-size:10px;font-weight:700;color:#C0001A;margin-bottom:3px;">${n}</div><div style="font-size:10px;color:#546E7A;">${d}</div></div></div>`;}).join("")}
+        </div>
+      </div>
+      <!-- Sección 04 -->
+      <div style="border-left:3px solid #E8A838;padding-left:16px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#E8A838;margin-bottom:8px;">04 · CÓMO LLENAR TU FORMATO</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          ${[["1","Datos generales","Ingresa tu DNI/RUT, selecciona tu Gerencia y escribe tu cargo."],["2","Redacta el Objetivo","Verbo + Qué + Para qué. Sin cifras — las cifras van en la Meta."],["3","Banco de indicadores","Úsalo solo como referencia. Cada gerencia tiene indicadores de ejemplo."],["4","Define el Indicador","Unidad + Objeto + Atributo. Selecciona la unidad de la lista."],["5","Meta y Sentido","Valor concreto en la misma unidad del indicador. ↑ Directo o ↓ Inverso."],["6","Plazo y Peso (%)","Indica la fecha y asigna el peso. Los 3 deben sumar exactamente 100%."],["7","Evidencia","Reporte o documento que verificará el resultado al cierre del año."]].map(([n,t,d])=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;background:#FAFAFA;border-left:3px solid #E8A838;"><span style="font-size:14px;font-weight:700;color:#E8A838;min-width:18px;">${n}</span><div><div style="font-size:12px;font-weight:700;color:#1A1A1A;">${t}</div><div style="font-size:11px;color:#546E7A;margin-top:2px;">${d}</div></div></div>`).join("")}
+        </div>
+      </div>
+      <!-- Advertencias -->
+      <div style="padding:16px 20px;background:#FFF8E8;border:1px solid #E8A838;">
+        <div style="font-size:10px;font-weight:700;color:#E8A838;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;">⚠ Advertencias clave</div>
+        ${[["Pesos ≠ 100%","El sistema te alertará. Revisa antes del taller."],["Indicador no cuantificable","Sin unidad de medida no es válido. Usa el Banco."],["Llevar formato completo","El CEO revisará y validará tus objetivos en el taller."]].map(([t,d])=>`<div style="font-size:12px;color:#37474F;margin-bottom:4px;"><strong style="color:#1A1A1A;">${t}:</strong> ${d}</div>`).join("")}
+      </div>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid #EFEFEF;display:flex;align-items:center;justify-content:space-between;background:#FAFAFA;">
+      <span style="font-size:11px;color:#999;">Fitflow · GDD 2026 · Documento confidencial</span>
+      <a href="guia_gdd2026.pdf" target="_blank" style="font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:#C0001A;padding:9px 18px;text-decoration:none;">⬇ Descargar Guía (PDF)</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const BD=[{"g": "Dirección General", "obj": "Asegurar el crecimiento sostenible de Fitflow en la región, alineando la estrategia comercial, operativa y financiera con los objetivos del grupo para el año 2026.", "ind": "Porcentaje de cumplimiento del presupuesto de ingresos consolidado regional", "f": "(Ingresos reales / Ingresos presupuestados) × 100", "s": "Directo"}, {"g": "Dirección General", "obj": "Fortalecer el posicionamiento de Fitflow como referente técnico en sistemas contra incendio en los clusters de minería, Oil & Gas y Data Center.", "ind": "N° de licitaciones/contratos adjudicados en clusters estratégicos", "f": "Conteo de contratos adjudicados en clusters estratégicos (minería, Oil & Gas, Data Center) en el período", "s": "Directo"}, {"g": "Dirección General", "obj": "Garantizar la eficiencia operativa y financiera de Fitflow en todos los países donde opera, optimizando rentabilidad.", "ind": "Margen EBITDA consolidado regional", "f": "(EBITDA real / Ingresos totales reales) × 100", "s": "Directo"}, {"g": "Dirección General", "obj": "Desarrollar y retener el talento clave de Fitflow, promoviendo una cultura de alto desempeño alineada a los valores organizacionales.", "ind": "Tasa de retención de colaboradores clave (Dirección, Gerencia, Jefatura)", "f": "(N° colaboradores clave que permanecen / N° colaboradores clave al inicio del período) × 100", "s": "Directo"}, {"g": "Dirección Comercial", "obj": "Incrementar los ingresos comerciales de Fitflow en los mercados regionales, cumpliendo la cuota de ventas definida en el presupuesto 2026.", "ind": "Porcentaje de cumplimiento de la cuota de ventas regional", "f": "(Ventas reales / Cuota de ventas presupuestada) × 100", "s": "Directo"}, {"g": "Dirección Comercial", "obj": "Ampliar la cartera de clientes activos en los clusters estratégicos (minería, Oil & Gas, proyectos de infraestructura).", "ind": "N° de nuevos clientes activos incorporados en el período", "f": "Conteo de clientes con primera compra en el período (sin historial previo)", "s": "Directo"}, {"g": "Dirección Comercial", "obj": "Mejorar la tasa de conversión del pipeline comercial, aumentando la efectividad desde la prospección hasta el cierre.", "ind": "Tasa de conversión de oportunidades en contratos cerrados", "f": "(N° oportunidades convertidas en contrato / N° total oportunidades registradas) × 100", "s": "Directo"}, {"g": "Dirección Comercial", "obj": "Incrementar la rentabilidad de las ventas optimizando el margen bruto por línea de producto y cluster.", "ind": "Margen bruto promedio sobre ventas", "f": "((Ingresos ventas − Costo de ventas) / Ingresos ventas) × 100", "s": "Directo"}, {"g": "Dirección Comercial", "obj": "Fortalecer la fidelización de clientes existentes, reduciendo la tasa de abandono y aumentando la recompra.", "ind": "Tasa de retención de clientes activos (cuentas con recompra en el período)", "f": "(N° clientes que repiten compra en período actual / N° clientes activos en período anterior) × 100", "s": "Directo"}, {"g": "Gerencia Comercial", "obj": "Alcanzar la cuota de ventas asignada al país/región, asegurando el cumplimiento del presupuesto de ingresos 2026.", "ind": "Porcentaje de cumplimiento de la cuota de ventas del país/región asignado", "f": "(Ventas reales del país / Cuota de ventas presupuestada del país) × 100", "s": "Directo"}, {"g": "Gerencia Comercial", "obj": "Gestionar activamente el pipeline comercial asegurando que las oportunidades avancen en tiempos establecidos.", "ind": "Ciclo promedio de venta (días desde oportunidad identificada hasta cierre)", "f": "Suma de días de ciclo de oportunidades cerradas / N° de oportunidades cerradas en el período", "s": "Inverso"}, {"g": "Gerencia Comercial", "obj": "Desarrollar y mantener relaciones comerciales sólidas con cuentas clave, asegurando su satisfacción y continuidad.", "ind": "Índice de satisfacción de clientes clave (NPS o CSAT)", "f": "Promedio ponderado de calificaciones en encuestas a cuentas clave del período", "s": "Directo"}, {"g": "Gerencia Comercial", "obj": "Incrementar el ticket promedio por operación comercial mediante estrategias de upselling y cross-selling.", "ind": "Valor promedio por orden de venta", "f": "Ingresos totales del período / N° de órdenes de venta emitidas", "s": "Directo"}, {"g": "Dirección de Administración y Finanzas", "obj": "Asegurar la salud financiera de Fitflow a nivel regional, garantizando el cumplimiento del presupuesto y la optimización del flujo de caja.", "ind": "Porcentaje de desviación del presupuesto de gastos operativos consolidados", "f": "((Gastos reales − Gastos presupuestados) / Gastos presupuestados) × 100", "s": "Inverso"}, {"g": "Dirección de Administración y Finanzas", "obj": "Garantizar el cumplimiento de las obligaciones tributarias, contables y regulatorias en todos los países donde opera Fitflow.", "ind": "Porcentaje de obligaciones fiscales y regulatorias cumplidas dentro del plazo", "f": "(N° de obligaciones cumplidas en plazo / N° total de obligaciones del período) × 100", "s": "Directo"}, {"g": "Dirección de Administración y Finanzas", "obj": "Optimizar el capital de trabajo de Fitflow, mejorando los indicadores de cobranza.", "ind": "Días de cuentas por cobrar (DSO - Days Sales Outstanding)", "f": "(Saldo de cuentas por cobrar al cierre / Ventas del período) × N° días del período", "s": "Inverso"}, {"g": "Dirección de Administración y Finanzas", "obj": "Implementar mejoras en los procesos financieros y administrativos incrementando la eficiencia operativa.", "ind": "Porcentaje de procesos financieros digitalizados o automatizados", "f": "(N° de procesos financieros digitalizados / N° total de procesos del área) × 100", "s": "Directo"}, {"g": "Gerencia de Administración y Finanzas", "obj": "Gestionar eficientemente el presupuesto de gastos del país, asegurando el cumplimiento del plan financiero 2026 dentro de los límites autorizados.", "ind": "Porcentaje de ejecución presupuestaria de gastos operativos del país", "f": "(Gastos reales del período / Presupuesto de gastos del período) × 100", "s": "Inverso"}, {"g": "Gerencia de Administración y Finanzas", "obj": "Mejorar la gestión de cobranzas del país, reduciendo la cartera vencida y el período promedio de cobro.", "ind": "Porcentaje de cartera vencida sobre el total de cuentas por cobrar", "f": "(Saldo de facturas vencidas / Saldo total de cuentas por cobrar) × 100", "s": "Inverso"}, {"g": "Gerencia de Administración y Finanzas", "obj": "Asegurar el cumplimiento oportuno de las obligaciones tributarias, laborales y contables del país.", "ind": "Porcentaje de declaraciones tributarias/laborales presentadas dentro del plazo", "f": "(N° de declaraciones en plazo / N° total de declaraciones del período) × 100", "s": "Directo"}, {"g": "Gerencia de Administración y Finanzas", "obj": "Optimizar los procesos administrativos del área, reduciendo los tiempos de respuesta y mejorando el servicio a gerencias.", "ind": "Tiempo promedio de respuesta a requerimientos administrativos internos", "f": "Suma de días de atención a requerimientos cerrados / N° de requerimientos atendidos", "s": "Inverso"}, {"g": "Gerencia de Marketing", "obj": "Posicionar a Fitflow como referente técnico y de confianza en sistemas contra incendio en los mercados regionales, incrementando visibilidad de marca.", "ind": "Alcance total generado por campañas digitales de marca (impresiones en LinkedIn, web, email)", "f": "Suma de impresiones orgánicas y pagadas en canales digitales durante el período", "s": "Directo"}, {"g": "Gerencia de Marketing", "obj": "Generar leads calificados para el equipo comercial mediante campañas digitales y participación en eventos del sector.", "ind": "N° de leads calificados entregados al equipo comercial", "f": "Conteo de prospectos que cumplen criterios de calificación (industria, tamaño, necesidad) generados por marketing", "s": "Directo"}, {"g": "Gerencia de Marketing", "obj": "Incrementar el posicionamiento digital de Fitflow, mejorando el tráfico orgánico al sitio web.", "ind": "Tráfico orgánico mensual al sitio web de Fitflow", "f": "N° de sesiones orgánicas registradas en Google Analytics durante el período", "s": "Directo"}, {"g": "Gerencia de Marketing", "obj": "Desarrollar y actualizar el catálogo de productos y material técnico-comercial para todas las líneas de producto activas.", "ind": "Porcentaje de líneas de producto con material técnico-comercial actualizado disponible para ventas", "f": "(N° de líneas con material actualizado / N° total de líneas de producto activas) × 100", "s": "Directo"}, {"g": "Gerencia de Marketing", "obj": "Gestionar la participación de Fitflow en ferias y eventos del sector maximizando el retorno de inversión.", "ind": "N° de oportunidades comerciales generadas en eventos del sector", "f": "Conteo de prospectos calificados registrados en CRM como originados en eventos del sector", "s": "Directo"}, {"g": "Gerencia de Supply Chain Management", "obj": "Asegurar la disponibilidad oportuna de productos y materiales para atender la demanda comercial en todos los países, minimizando quiebres de stock.", "ind": "Tasa de disponibilidad de inventario (Fill Rate)", "f": "(N° de líneas de pedido atendidas completas y a tiempo / N° total de líneas de pedido) × 100", "s": "Directo"}, {"g": "Gerencia de Supply Chain Management", "obj": "Optimizar la rotación de inventario de Fitflow, reduciendo el capital inmovilizado y el riesgo de obsolescencia.", "ind": "Índice de rotación de inventario", "f": "Costo de ventas del período / ((Inventario inicial + Inventario final) / 2)", "s": "Directo"}, {"g": "Gerencia de Supply Chain Management", "obj": "Mejorar los plazos de entrega a clientes, asegurando despachos dentro de los tiempos comprometidos y con calidad.", "ind": "Porcentaje de entregas en plazo y completas (OTIF - On Time In Full)", "f": "(N° de entregas realizadas en plazo y completas / N° total de entregas) × 100", "s": "Directo"}, {"g": "Gerencia de Supply Chain Management", "obj": "Desarrollar y gestionar la red de proveedores estratégicos, asegurando calidad, confiabilidad y competitividad.", "ind": "Porcentaje de proveedores estratégicos con desempeño satisfactorio (≥ 80 pts en scorecard)", "f": "(N° proveedores con calificación ≥ 80 / N° total de proveedores estratégicos evaluados) × 100", "s": "Directo"}, {"g": "Gerencia de Supply Chain Management", "obj": "Reducir los costos logísticos mediante la optimización de rutas, negociación con operadores y consolidación de cargas.", "ind": "Costo logístico como porcentaje sobre las ventas", "f": "(Costo total logístico del período / Ingresos por ventas del período) × 100", "s": "Inverso"}, {"g": "Gerencia de Planeamiento y Control de Gestión", "obj": "Asegurar la calidad y oportunidad del proceso de planificación presupuestaria anual, entregando el presupuesto consolidado en los plazos definidos.", "ind": "Porcentaje de áreas que entregan su anteproyecto de presupuesto en el plazo establecido", "f": "(N° de áreas que entregan en plazo / N° total de áreas que deben presentar anteproyecto) × 100", "s": "Directo"}, {"g": "Gerencia de Planeamiento y Control de Gestión", "obj": "Implementar un sistema de seguimiento periódico de indicadores estratégicos de Fitflow, generando reportes para la alta dirección.", "ind": "Porcentaje de reportes de control de gestión entregados en plazo y formato establecidos", "f": "(N° de reportes entregados en plazo / N° total de reportes comprometidos) × 100", "s": "Directo"}, {"g": "Gerencia de Planeamiento y Control de Gestión", "obj": "Identificar desviaciones significativas entre ejecución real y presupuesto, generando alertas y análisis para acciones correctivas.", "ind": "Tiempo promedio de respuesta desde detección de desviación hasta emisión de análisis y propuesta", "f": "Suma de días entre identificación y emisión de análisis / N° de desviaciones significativas identificadas", "s": "Inverso"}, {"g": "Gerencia de Planeamiento y Control de Gestión", "obj": "Desarrollar y mantener el tablero de indicadores estratégico (dashboard) de Fitflow con datos actualizados.", "ind": "Porcentaje de indicadores del tablero estratégico con datos actualizados al día", "f": "(N° de indicadores con datos actualizados / N° total de indicadores del tablero) × 100", "s": "Directo"}, {"g": "Gerencia de RRHH", "obj": "Implementar el modelo de Gestión del Desempeño GDD 2026 en el grupo piloto, asegurando el cronograma y la calidad del proceso.", "ind": "Porcentaje de líderes del grupo piloto con ficha de objetivos completa y validada por el CEO en el plazo establecido", "f": "(N° de líderes con ficha validada / N° total de líderes del grupo piloto) × 100", "s": "Directo"}, {"g": "Gerencia de RRHH", "obj": "Reducir la tasa de rotación no deseada de Fitflow mediante estrategias de retención focalizadas en talento clave.", "ind": "Tasa de rotación voluntaria no deseada", "f": "(N° de bajas voluntarias no deseadas / Dotación promedio del período) × 100", "s": "Inverso"}, {"g": "Gerencia de RRHH", "obj": "Asegurar la cobertura oportuna de vacantes críticas, reduciendo el tiempo promedio de reclutamiento y selección.", "ind": "Tiempo promedio de cobertura de vacantes críticas (días desde apertura hasta incorporación)", "f": "Suma de días de proceso de reclutamiento para vacantes críticas / N° de vacantes críticas cerradas", "s": "Inverso"}, {"g": "Gerencia de RRHH", "obj": "Garantizar el cumplimiento del plan de capacitación y desarrollo anual de Fitflow.", "ind": "Porcentaje de ejecución del plan de capacitación anual", "f": "(N° de horas de capacitación ejecutadas / N° de horas planificadas) × 100", "s": "Directo"}, {"g": "Gerencia de RRHH", "obj": "Mejorar el clima laboral y el engagement de los colaboradores a partir de los resultados de la medición de clima 2025.", "ind": "Índice de satisfacción/engagement en encuesta de clima 2026", "f": "(N° de respuestas favorables / N° total de respuestas válidas) × 100", "s": "Directo"}, {"g": "Gerencia de Unidad de Negocios de Proyectos y Servicios", "obj": "Asegurar la ejecución rentable y oportuna de los proyectos y contratos de servicios, cumpliendo los estándares técnicos y de seguridad de Fitflow.", "ind": "Porcentaje de proyectos ejecutados dentro del plazo, presupuesto y alcance (triple restricción)", "f": "(N° de proyectos que cumplen las 3 restricciones / N° total de proyectos cerrados) × 100", "s": "Directo"}, {"g": "Gerencia de Unidad de Negocios de Proyectos y Servicios", "obj": "Maximizar la rentabilidad de la cartera de proyectos y servicios, controlando costos y mejorando el margen de contribución.", "ind": "Margen de contribución promedio de la cartera de proyectos y servicios", "f": "((Ingresos − Costos directos de ejecución) / Ingresos) × 100", "s": "Directo"}, {"g": "Gerencia de Unidad de Negocios de Proyectos y Servicios", "obj": "Garantizar la satisfacción del cliente en proyectos y servicios ejecutados por Fitflow.", "ind": "Índice de satisfacción del cliente en proyectos ejecutados (encuesta post-cierre)", "f": "Promedio de calificaciones en encuestas de satisfacción post-proyecto (escala 1-100)", "s": "Directo"}, {"g": "Gerencia de Unidad de Negocios de Proyectos y Servicios", "obj": "Asegurar el cumplimiento de los indicadores de seguridad y salud ocupacional en todos los proyectos, con cero accidentes graves.", "ind": "Índice de Frecuencia de Accidentes (IFA) en proyectos y servicios de la unidad", "f": "(N° de accidentes con tiempo perdido × 1,000,000) / N° de horas trabajadas", "s": "Inverso"}, {"g": "Gerencia de Unidad de Negocios de Proyectos y Servicios", "obj": "Incrementar la cartera de contratos de servicio recurrente (mantenimiento, soporte técnico) generando ingresos predecibles.", "ind": "Ingresos por contratos de servicio recurrente como % de ingresos totales de la unidad", "f": "(Ingresos de contratos recurrentes / Ingresos totales de la unidad) × 100", "s": "Directo"}];
+
+const CLAVE="FITFLOW2026";
+const UNIDS=["Porcentaje","Soles","Dólares","Número en cantidad","Días","Horas","Kilos","Toneladas","Metros","Índice","Puntaje","Ratio","Otra"];
+let S={},BT=0;
+
+function ss(id){
+  ["sli","sci","sl","sc"].forEach(i=>{
+    const e=document.getElementById(i);
+    e.classList.remove("active");
+    if(["sl","sc"].includes(i))e.style.display="none";
+  });
+  const el=document.getElementById(id);
+  el.classList.add("active");
+  if(["sl","sc"].includes(id))el.style.display="flex";
+}
+function showLider(){ss("sli");}
+function showCeo(){ss("sci");}
+function logout(){S={};showLider();}
+
+function chkDni(){
+  const dni=document.getElementById("ldni").value.trim();
+  const inf=document.getElementById("linf");
+  const ext=document.getElementById("cext");
+  if(!dni||dni.length<5){inf.style.display="none";ext.style.display="none";return;}
+  const raw=localStorage.getItem("gdd2026_"+dni);
+  if(raw){
+    const d=JSON.parse(raw);
+    inf.textContent="Bienvenido/a de nuevo, "+(d.nombre||dni)+". Pulsa INGRESAR para continuar.";
+    inf.style.display="block";
+    ext.style.display="none";
+  }else{
+    inf.style.display="none";
+    ext.style.display="block";
+  }
+}
+
+function loginL(){
+  const dni=document.getElementById("ldni").value.trim();
+  const err=document.getElementById("lerr");
+  if(!dni){err.textContent="Ingresa tu número de documento.";err.style.display="block";return;}
+  const raw=localStorage.getItem("gdd2026_"+dni);
+  let nombre,gerencia,cargo;
+  if(raw){const d=JSON.parse(raw);nombre=d.nombre;gerencia=d.gerencia;cargo=d.cargo;}
+  else{
+    nombre=document.getElementById("lnom").value.trim();
+    gerencia=document.getElementById("lger").value;
+    cargo=document.getElementById("lcar").value.trim();
+    if(!gerencia){err.textContent="Selecciona tu Gerencia / Dirección.";err.style.display="block";return;}
+  }
+  err.style.display="none";
+  S={dni,nombre,gerencia,cargo};
+  document.getElementById("hnom").textContent=nombre||dni;
+  document.getElementById("fdni").value=dni;
+  document.getElementById("fnom").value=nombre||"";
+  document.getElementById("fger").value=gerencia||"";
+  document.getElementById("fcar").value=cargo||"";
+  buildObj();cargar();ss("sl");
+}
+
+function loginC(){
+  if(document.getElementById("lclave").value!==CLAVE){document.getElementById("cerr").style.display="block";return;}
+  buildCeo();ss("sc");
+}
+
+function buildObj(){
+  const c=document.getElementById("oc");c.innerHTML="";
+  for(let i=1;i<=3;i++){
+    const uO=UNIDS.map(u=>`<option value="${u}">${u}</option>`).join("");
+    c.insertAdjacentHTML("beforeend",`
+    <div class="sec">
+      <div class="ohdr"><h2>Objetivo ${i} de 3 &nbsp;·&nbsp; Peso: <span id="pd${i}">—</span>%</h2></div>
+      <div class="sin" style="display:flex;flex-direction:column;gap:20px;">
+        <div class="fbox">
+          <span class="ft">Fórmula: Verbo en infinitivo + Qué se quiere lograr + Para qué / Contexto</span>
+          <span class="fx">Ej: "Fortalecer la eficiencia operativa de los contratos para mejorar la rentabilidad de la unidad de proyectos."</span>
+        </div>
+        <div class="fld">
+          <label>Redacción del objetivo *</label>
+          <textarea id="o${i}t" class="finp" rows="3" placeholder="Escribe tu objetivo siguiendo la fórmula indicada"></textarea>
+          <span class="fferr" id="et${i}">Campo obligatorio.</span>
+        </div>
+        <button class="bbtn" onclick="openB(${i})"><span>¿Necesitas inspiración? Consulta el Banco de Objetivos e Indicadores</span><span class="ba">→</span></button>
+        <div class="sepline"></div>
+        <div class="g2">
+          <div class="fld gf">
+            <label>Indicador *</label>
+            <span class="hb">Unidad de medida + objeto + atributo</span>
+            <span class="ha">Ej: "Porcentaje de contratos adjudicados en las líneas de negocio respecto al total de licitaciones presentadas"</span>
+            <input id="o${i}i" class="finp" type="text" placeholder="Redacta el indicador">
+            <span class="fferr" id="ei${i}">Campo obligatorio.</span>
+          </div>
+          <div class="fld">
+            <label>Nombre de la unidad de medida *</label>
+            <div class="fsel"><select id="o${i}u"><option value="">Selecciona una unidad</option>${uO}</select><span class="arr">▼</span></div>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:5px;">
+              <label style="font-size:12px;font-weight:600;color:#6E6E6E;white-space:nowrap;">Otra:</label>
+              <input id="o${i}o" class="finp" type="text" placeholder="Especifica la unidad" style="padding:9px 11px;font-size:13px;">
+            </div>
+            <span class="fferr" id="eu${i}">Campo obligatorio.</span>
+          </div>
+          <div class="fld">
+            <label>Meta / Valor esperado *</label>
+            <span class="ha">Ej: "≥ 35% · ≥ 12 contratos · 100%"</span>
+            <span class="hb">Exprese en la misma unidad del indicador</span>
+            <input id="o${i}m" class="finp" type="text" placeholder="Valor esperado">
+            <span class="fferr" id="em${i}">Campo obligatorio.</span>
+          </div>
+          <div class="fld">
+            <label>Sentido del indicador *</label>
+            <div class="fsel">
+              <select id="o${i}s">
+                <option value="">Selecciona el sentido</option>
+                <option value="Directo">↑ Directo — mejora cuando el valor sube (ej: ventas, contratos)</option>
+                <option value="Inverso">↓ Inverso — mejora cuando el valor baja (ej: costos, reclamos)</option>
+              </select><span class="arr">▼</span>
+            </div>
+            <span class="fferr" id="es${i}">Campo obligatorio.</span>
+          </div>
+          <div class="fld">
+            <label>Plazo de cumplimiento *</label>
+            <input id="o${i}p" class="finp" type="date">
+            <span class="fferr" id="ep${i}">Campo obligatorio.</span>
+          </div>
+          <div class="fld">
+            <label>Peso del objetivo (%) *</label>
+            <span class="hb">La suma de los 3 objetivos debe ser 100%</span>
+            <input id="o${i}w" class="finp" type="number" min="0" max="100" placeholder="Ej. 30" oninput="updPesos()">
+            <span class="fferr" id="ew${i}">Campo obligatorio.</span>
+          </div>
+          <div></div>
+          <div class="fld gf">
+            <label>Evidencia (medio de verificación) *</label>
+            <span class="ha">Ej: "Reporte mensual del CRM · Dashboard de ventas · Informe de auditoría · Reporte contable del ERP"</span>
+            <input id="o${i}e" class="finp" type="text" placeholder="Indica el medio de verificación">
+            <span class="fferr" id="ee${i}">Campo obligatorio.</span>
+          </div>
+          <div class="obsbox gf">
+            <span class="obslbl">Comentarios u Observaciones del CEO o RRHH</span>
+            <div id="od${i}" class="obstxt">Aún no se han registrado observaciones.</div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+  }
+  updPesos();
+}
+
+function updPesos(){
+  const p=[1,2,3].map(i=>parseFloat(document.getElementById("o"+i+"w")?.value)||0);
+  const t=p[0]+p[1]+p[2];
+  [1,2,3].forEach((i,x)=>{const d=document.getElementById("pd"+i);if(d)d.textContent=p[x]||"—";});
+  const pb=document.getElementById("pb"),pi=document.getElementById("pi"),pm=document.getElementById("pm");
+  if(!pb)return;
+  if(t===100){pb.style.cssText="display:flex;align-items:center;gap:10px;padding:14px 18px;border:1px solid #8FC79A;background:#EFF8F0;";pi.textContent="✅";pm.textContent="Pesos completos: 100%";}
+  else if(t>100){pb.style.cssText="display:flex;align-items:center;gap:10px;padding:14px 18px;border:1px solid #C0001A;background:#FDECEA;";pi.textContent="🚨";pm.textContent=`Atención: los pesos suman ${t}%, superan el 100%`;}
+  else{pb.style.cssText="display:flex;align-items:center;gap:10px;padding:14px 18px;border:1px solid #E0BE6E;background:#FFF8E8;";pi.textContent="⚠️";pm.textContent=`Pesos acumulados: ${t}% — faltan ${100-t}% para completar`;}
+}
+
+function validar(){
+  const flds=["t","i","u","m","s","p","w","e"];
+  let ok=true;
+  for(let i=1;i<=3;i++){
+    flds.forEach(f=>{
+      const el=document.getElementById("o"+i+f);
+      const em=document.getElementById("e"+f+i);
+      if(!el||!em)return;
+      const v=!el.value||el.value==="";
+      if(v){el.classList.add("ferr");em.style.display="block";ok=false;}
+      else{el.classList.remove("ferr");em.style.display="none";}
+    });
+  }
+  if(!ok)toast("⚠ Hay campos obligatorios sin completar. Puedes guardar y continuar después.","warn");
+  return ok;
+}
+
+function key(){return "gdd2026_"+S.dni;}
+function guardar(){
+  validar();
+  // Actualizar sesión con datos editados
+  const nomEdit=document.getElementById("fnom").value.trim();
+  const gerEdit=document.getElementById("fger").value;
+  const carEdit=document.getElementById("fcar").value.trim();
+  if(nomEdit) S.nombre=nomEdit;
+  if(gerEdit) S.gerencia=gerEdit;
+  if(carEdit) S.cargo=carEdit;
+  const objs=[1,2,3].map(i=>({
+    texto:document.getElementById("o"+i+"t")?.value||"",
+    indicador:document.getElementById("o"+i+"i")?.value||"",
+    unidad:document.getElementById("o"+i+"u")?.value||"",
+    otra:document.getElementById("o"+i+"o")?.value||"",
+    meta:document.getElementById("o"+i+"m")?.value||"",
+    sentido:document.getElementById("o"+i+"s")?.value||"",
+    plazo:document.getElementById("o"+i+"p")?.value||"",
+    peso:document.getElementById("o"+i+"w")?.value||"",
+    evidencia:document.getElementById("o"+i+"e")?.value||"",
+    obs:document.getElementById("od"+i)?.dataset?.obs||"",
+  }));
+  try{localStorage.setItem(key(),JSON.stringify({dni:S.dni,nombre:S.nombre,gerencia:S.gerencia,cargo:S.cargo,fechaGuardado:new Date().toLocaleString("es-PE"),objetivos:objs}));toast("✓ Cambios guardados correctamente","ok");}
+  catch(e){toast("Error al guardar.","warn");}
+}
+
+function cargar(){
+  try{
+    const raw=localStorage.getItem(key());if(!raw)return;
+    const data=JSON.parse(raw);
+    data.objetivos.forEach((o,x)=>{
+      const i=x+1;
+      [["t","texto"],["i","indicador"],["u","unidad"],["o","otra"],["m","meta"],["s","sentido"],["p","plazo"],["w","peso"],["e","evidencia"]].forEach(([f,k])=>{
+        const el=document.getElementById("o"+i+f);if(el&&o[k]){el.value=o[k];el.classList.remove("ferr");}
+      });
+      if(o.obs){const d=document.getElementById("od"+i);if(d){d.textContent=o.obs;d.classList.add("has");d.dataset.obs=o.obs;}}
+    });
+    updPesos();toast("Datos anteriores cargados","ok");
+  }catch(e){}
+}
+
+function imprimir(){guardar();setTimeout(()=>window.print(),400);}
+
+function openB(n){BT=n;document.getElementById("bf").value=S.gerencia||"";document.getElementById("bs").value="";filtrar();document.getElementById("bov").classList.add("open");}
+function closeBanco(){document.getElementById("bov").classList.remove("open");}
+
+function filtrar(){
+  const q=document.getElementById("bs").value.toLowerCase();
+  const g=document.getElementById("bf").value;
+  const f=BD.filter(r=>(!g||r.g===g)&&(!q||r.ind.toLowerCase().includes(q)||r.obj.toLowerCase().includes(q)||r.g.toLowerCase().includes(q)));
+  const tb=document.getElementById("bt"),em=document.getElementById("be");
+  if(!f.length){tb.innerHTML="";em.style.display="block";return;}
+  em.style.display="none";
+  tb.innerHTML=f.map(r=>{
+    const x=BD.indexOf(r),sc=r.s==="Directo"?"color:#2E7D32":"color:#C0001A",sa=r.s==="Directo"?"↑ Directo":"↓ Inverso";
+    return `<tr><td class="gc">${r.g}</td><td>${r.obj}</td><td><strong>${r.ind}</strong></td><td class="fc">${r.f}</td><td><span style="font-weight:700;${sc}">${sa}</span></td></tr>`;
+  }).join("");
+}
+
+function usarInd(x){
+  const r=BD[x];if(!r||!BT)return;
+  const el=document.getElementById("o"+BT+"i"),se=document.getElementById("o"+BT+"s");
+  if(el){el.value=r.ind;el.classList.remove("ferr");}
+  if(se){se.value=r.s;se.classList.remove("ferr");}
+  closeBanco();toast("Indicador y sentido cargados. Ajusta según tu contexto.","warn");
+}
+
+function buildCeo(){
+  const grid=document.getElementById("cg"),stats=document.getElementById("cstats");
+  const regs=[];
+  for(let k in localStorage){if(k.startsWith("gdd2026_")){try{const d=JSON.parse(localStorage.getItem(k));if(d&&d.dni)regs.push(d);}catch(e){}}}
+  if(!regs.length){grid.innerHTML="<div class='est'><div style='font-size:38px;margin-bottom:10px;'>📋</div><h3 style='font-size:15px;color:#4A4A4A;margin-bottom:7px;'>Aún no hay objetivos registrados</h3><p style='font-size:13px;'>Aparecerán aquí cuando los líderes guarden su formato.</p></div>";stats.textContent="Sin registros aún";return;}
+  const comp=regs.filter(r=>r.objetivos&&r.objetivos.every(o=>o.texto&&o.meta)).length;
+  stats.textContent=`${regs.length} líder(es) con formato iniciado · ${comp} con los 3 objetivos completos`;
+  grid.innerHTML=regs.map(d=>`
+    <div class="lcard">
+      <div class="lchdr"><div><h3>${d.nombre||d.dni}</h3><div class="lctag">${d.cargo||""} · ${d.gerencia||""}</div></div><div style="text-align:right;"><div style="font-size:10px;color:#888;">Guardado</div><div style="font-size:11px;color:#ccc;">${d.fechaGuardado||"--"}</div></div></div>
+      <div class="lcbody">
+        ${(d.objetivos||[]).map((o,i)=>o.texto?`
+          <div class="omini">
+            <div class="omn">Objetivo ${i+1} · Peso: ${o.peso||"--"}%</div>
+            <div class="omt">${o.texto}</div>
+            <div class="omm">📊 ${o.indicador||"--"} · Meta: ${o.meta||"--"} · Evidencia: ${o.evidencia||"--"} · ${o.plazo?new Date(o.plazo).toLocaleDateString("es-PE"):"Sin plazo"}</div>
+            <div style="margin-top:7px;">
+              <label style="font-size:9px;font-weight:700;color:#C0001A;text-transform:uppercase;letter-spacing:.1em;">Observaciones del CEO o RRHH:</label>
+              ${o.obs?`<div style="font-size:13px;color:#1A1A1A;margin-top:3px;line-height:1.5;">${o.obs}</div>`:""}
+              <textarea class="cota" id="co${d.dni}${i}" placeholder="Escribe aquí tus observaciones...">${o.obs||""}</textarea>
+              <button class="cobtn" onclick="gObs('${d.dni}',${i})">Guardar observación →</button>
+            </div>
+          </div>`:""
+        ).join("")||"<p style='font-size:12px;color:#999;font-style:italic;'>Sin objetivos registrados.</p>"}
+      </div>
+    </div>`).join("");
+}
+
+function gObs(dni,idx){
+  const raw=localStorage.getItem("gdd2026_"+dni);if(!raw)return;
+  const data=JSON.parse(raw);
+  const obs=document.getElementById("co"+dni+idx)?.value||"";
+  if(data.objetivos&&data.objetivos[idx]){data.objetivos[idx].obs=obs;localStorage.setItem("gdd2026_"+dni,JSON.stringify(data));toast("✓ Observación guardada","ok");}
+}
+
+function exportCSV(){
+  const regs=[];
+  for(let k in localStorage){if(k.startsWith("gdd2026_")){try{const d=JSON.parse(localStorage.getItem(k));if(d&&d.dni)regs.push(d);}catch(e){}}}
+  if(!regs.length){toast("No hay datos para exportar","warn");return;}
+  const ROJO_T="\uFEFF";
+  const SEP=";";
+  const hdr=["DNI","APELLIDOS Y NOMBRES","GERENCIA","CARGO","N\u00b0 OBJETIVO","OBJETIVO","INDICADOR","UNIDAD DE MEDIDA","META / VALOR ESPERADO","SENTIDO DEL INDICADOR","PLAZO","PESO (%)","EVIDENCIA","COMENTARIOS U OBSERVACIONES DEL CEO O RRHH"];
+  const rows=[];
+  regs.forEach(d=>{
+    (d.objetivos||[]).forEach((o,i)=>{
+      const u=o.unidad==="Otra"?(o.otra||""):(o.unidad||"");
+      const p=o.plazo?new Date(o.plazo).toLocaleDateString("es-PE"):"";
+      rows.push([d.dni,d.nombre,d.gerencia,d.cargo,"Objetivo "+(i+1),o.texto,o.indicador,u,o.meta,o.sentido,p,o.peso||"",o.evidencia,o.obs].map(v=>`"${(v||"").replace(/"/g,'""')}"`).join(SEP));
+    });
+  });
+  // Agregar estilo Excel: primera fila con color rojo tenue usando formato SYLK no es posible en CSV,
+  // pero usamos separador ; para que Excel en español lo abra correctamente con columnas separadas
+  const csv=ROJO_T+[hdr.join(SEP),...rows].join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
+  a.download="GDD2026_Objetivos_"+new Date().toLocaleDateString("es-PE").replace(/\//g,"-")+".csv";
+  a.click();toast("\u2713 Exportado correctamente. Abre en Excel y la primera fila tiene los encabezados.","ok");
+}
+
+function abrirGuia(){
+  const ov=document.getElementById("guia-ov");
+  ov.style.display="flex";
+}
+function cerrarGuia(){
+  document.getElementById("guia-ov").style.display="none";
+}
+
+let _tt;
+function toast(msg,type="ok"){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.className="toast "+type+" show";
+  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove("show"),4000);
+}
+
+setInterval(()=>{if(S.dni&&document.getElementById("sl").classList.contains("active"))guardar();},120000);
+</script>
+</body>
+</html>
